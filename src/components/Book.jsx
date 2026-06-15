@@ -8,7 +8,6 @@ import {
   BoxGeometry,
   Color,
   Float32BufferAttribute,
-  MathUtils,
   MeshStandardMaterial,
   Skeleton,
   SkinnedMesh,
@@ -17,13 +16,16 @@ import {
   Vector3,
 } from "three";
 import { degToRad } from "three/src/math/MathUtils.js";
-import { pageAtom, pages } from "./UI";
+import { glareAtom, pageAtom, pages } from "./UI";
 
 const easingFactor = 0.5; // Controls the speed of the easing
 const easingFactorFold = 0.3; // Controls the speed of the easing
 const insideCurveStrength = 0.18; // Controls the strength of the curve
 const outsideCurveStrength = 0.05; // Controls the strength of the curve
 const turningCurveStrength = 0.09; // Controls the strength of the curve
+const PAGE_TURN_DURATION = 400;
+const CONTENT_REVEAL_DELAY = PAGE_TURN_DURATION + 80;
+const CONTENT_REVEAL_DURATION = 520;
 
 const PAGE_WIDTH = 1.28;
 const PAGE_HEIGHT = 1.71; // 4:3 aspect ratio
@@ -68,33 +70,69 @@ pageGeometry.setAttribute(
 );
 
 const whiteColor = new Color("white");
-const emissiveColor = new Color("orange");
+const blankPageColor = new Color("#f0e3c8");
+const pageEdgeColor = new Color("#c7bca4");
+
+const createRevealMaterial = (options) => {
+  const material = new MeshStandardMaterial({
+    color: whiteColor,
+    ...options,
+  });
+
+  material.userData.reveal = { value: 0 };
+  material.userData.blankColor = { value: blankPageColor };
+  material.onBeforeCompile = (shader) => {
+    shader.uniforms.reveal = material.userData.reveal;
+    shader.uniforms.blankColor = material.userData.blankColor;
+    shader.fragmentShader = `
+      uniform float reveal;
+      uniform vec3 blankColor;
+    ${shader.fragmentShader}`;
+    shader.fragmentShader = shader.fragmentShader.replace(
+      "#include <map_fragment>",
+      `
+      #include <map_fragment>
+      diffuseColor.rgb = mix(blankColor, diffuseColor.rgb, reveal);
+      `
+    );
+  };
+
+  return material;
+};
 
 const pageMaterials = [
   new MeshStandardMaterial({
-    color: whiteColor,
+    color: pageEdgeColor,
   }),
   new MeshStandardMaterial({
     color: "#111",
   }),
   new MeshStandardMaterial({
-    color: whiteColor,
+    color: pageEdgeColor,
   }),
   new MeshStandardMaterial({
-    color: whiteColor,
+    color: pageEdgeColor,
   }),
 ];
 
+const getTexturePath = (image) => {
+  if (image.startsWith("/")) {
+    return image;
+  }
+  return `/textures/${image}.jpg`;
+};
+
 pages.forEach((page) => {
-  useTexture.preload(`/textures/${page.front}.jpg`);
-  useTexture.preload(`/textures/${page.back}.jpg`);
+  useTexture.preload(getTexturePath(page.front));
+  useTexture.preload(getTexturePath(page.back));
   useTexture.preload(`/textures/book-cover-roughness.jpg`);
 });
 
 const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
+  const [glare] = useAtom(glareAtom);
   const [picture, picture2, pictureRoughness] = useTexture([
-    `/textures/${front}.jpg`,
-    `/textures/${back}.jpg`,
+    getTexturePath(front),
+    getTexturePath(back),
     ...(number === 0 || number === pages.length - 1
       ? [`/textures/book-cover-roughness.jpg`]
       : []),
@@ -103,6 +141,9 @@ const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
   const group = useRef();
   const turnedAt = useRef(0);
   const lastOpened = useRef(opened);
+  const spreadChangedAt = useRef(+new Date());
+  const lastPage = useRef(page);
+  const lastGlare = useRef(glare);
 
   const skinnedMeshRef = useRef();
 
@@ -124,8 +165,7 @@ const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
 
     const materials = [
       ...pageMaterials,
-      new MeshStandardMaterial({
-        color: whiteColor,
+      createRevealMaterial({
         map: picture,
         ...(number === 0
           ? {
@@ -134,11 +174,8 @@ const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
           : {
               roughness: 0.1,
             }),
-        emissive: emissiveColor,
-        emissiveIntensity: 0,
       }),
-      new MeshStandardMaterial({
-        color: whiteColor,
+      createRevealMaterial({
         map: picture2,
         ...(number === pages.length - 1
           ? {
@@ -147,10 +184,10 @@ const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
           : {
               roughness: 0.1,
             }),
-        emissive: emissiveColor,
-        emissiveIntensity: 0,
       }),
     ];
+    materials[4].userData.originalRoughnessMap = materials[4].roughnessMap;
+    materials[5].userData.originalRoughnessMap = materials[5].roughnessMap;
     const mesh = new SkinnedMesh(pageGeometry, materials);
     mesh.castShadow = true;
     mesh.receiveShadow = true;
@@ -167,19 +204,46 @@ const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
       return;
     }
 
-    const emissiveIntensity = highlighted ? 0.22 : 0;
-    skinnedMeshRef.current.material[4].emissiveIntensity =
-      skinnedMeshRef.current.material[5].emissiveIntensity = MathUtils.lerp(
-        skinnedMeshRef.current.material[4].emissiveIntensity,
-        emissiveIntensity,
-        0.1
-      );
+    const pageRoughness = glare ? 0.1 : 0.92;
+    skinnedMeshRef.current.material[4].roughness = pageRoughness;
+    skinnedMeshRef.current.material[5].roughness = pageRoughness;
+    skinnedMeshRef.current.material[4].roughnessMap = glare
+      ? skinnedMeshRef.current.material[4].userData.originalRoughnessMap
+      : null;
+    skinnedMeshRef.current.material[5].roughnessMap = glare
+      ? skinnedMeshRef.current.material[5].userData.originalRoughnessMap
+      : null;
+    if (lastGlare.current !== glare) {
+      skinnedMeshRef.current.material[4].needsUpdate = true;
+      skinnedMeshRef.current.material[5].needsUpdate = true;
+      lastGlare.current = glare;
+    }
 
+    if (lastPage.current !== page) {
+      spreadChangedAt.current = +new Date();
+      lastPage.current = page;
+    }
     if (lastOpened.current !== opened) {
       turnedAt.current = +new Date();
       lastOpened.current = opened;
     }
-    let turningTime = Math.min(400, new Date() - turnedAt.current) / 400;
+    const now = +new Date();
+    const elapsedTurnTime = now - turnedAt.current;
+    const elapsedSpreadTime = now - spreadChangedAt.current;
+    const revealAmount = Math.min(
+      1,
+      Math.max(
+        0,
+        (elapsedSpreadTime - CONTENT_REVEAL_DELAY) / CONTENT_REVEAL_DURATION
+      )
+    );
+    const frontReveal = number === 0 ? 1 : number === page ? revealAmount : 0;
+    const backReveal =
+      number === 0 ? 1 : number === page - 1 ? revealAmount : 0;
+    skinnedMeshRef.current.material[4].userData.reveal.value = frontReveal;
+    skinnedMeshRef.current.material[5].userData.reveal.value = backReveal;
+
+    let turningTime = Math.min(PAGE_TURN_DURATION, elapsedTurnTime) / PAGE_TURN_DURATION;
     turningTime = Math.sin(turningTime * Math.PI);
 
     let targetRotation = opened ? -Math.PI / 2 : Math.PI / 2;

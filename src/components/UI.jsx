@@ -60,7 +60,7 @@ const infoTabs = {
     title: "Bibliography",
     body: [
       "Works cited",
-      "Use the citation style required for your class or project brief.",
+      "(WIP)",
     ],
   },
 };

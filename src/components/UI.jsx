@@ -7,11 +7,11 @@ const pictures = [
   "/images/page3.png",
   "/images/page4.png",
   "/images/page5.png",
-  "DSC01040",
+  "/images/page6.png",
   "/images/page7.png",
-  "DSC01071",
+  "/images/page8.png",
   "/images/page9.png",
-  "DSC01145",
+  "/images/page10.png",
   "DSC01420",
   "DSC01461",
   "DSC01489",
@@ -59,15 +59,8 @@ const infoTabs = {
   bibliography: {
     title: "Bibliography",
     body: [
-      "Cooper-Cunningham, Dean. “Seeing (in)Security, Gender and Silencing: Posters in and about the British Women’s Suffrage Movement.” International Feminist Journal of Politics, vol. 21, no. 3, Mar. 2019, pp. 383–408, https://doi.org/10.1080/14616742.2018.1561203.",
-      "Florey, Kenneth. Women’s Suffrage Memorabilia: An Illustrated Historical Study. McFarland & Company, 2013.",
-      "Manning, Haydon R. Comic Commentators: Contemporary Political Cartooning in Australia. Network Books, 2008.",
-      "Morton, Tara. “Changing Spaces: Art, Politics, and Identity in the Home Studios of the Suffrage Atelier.” Women’s History Review, vol. 21, no. 4, Aug. 2012, pp. 623–37, https://doi.org/10.1080/09612025.2012.658177.",
-      "O’Hagan, Lauren Alex. “Contesting Women’s Right to Vote: Anti-Suffrage Postcards in Edwardian Britain.” Visual Culture in Britain, vol. 21, no. 3, Dec. 2020, pp. 330–62, https://doi.org/10.1080/14714787.2020.1827971.",
-      "Sarna, Alya J. “Illustrating History: Art and Law in the Women’s Suffrage Movement.” Library of Congress, Law Library of Congress, https://www.loc.gov/ghe/cascade/index.html?appid=3e0a781d27514e9b8e90136636f7140d.",
-      "Stevenson, Ana, and Kristin Allukian. “The Suffrage Postcard Project: Feminist Digital Archiving and Transatlantic Suffrage History.” Journal of Contemporary Archival Studies, vol. 8, no. 8, Mar. 2021, pp. 1–25, https://www.researchgate.net/publication/357043352_The_Suffrage_Postcard_Project_Feminist_Digital_Archiving_and_Transatlantic_Suffrage_History.",
-      "Tickner, Lisa. The Spectacle of Women: Imagery of the Suffrage Campaign 1907-14. University of Chicago Press, 1988.",
-      "Walker, Lynne. “Women Working Together.” Woman’s Art Journal, vol. 11, no. 2, 1990, pp. 48–50. JSTOR, https://www.jstor.org/stable/3690703.",
+      "Works cited",
+      "Use the citation style required for your class or project brief.",
     ],
   },
 };
@@ -272,7 +265,7 @@ export const UI = () => {
                 </button>
               ))}
             </div>
-            <div className="max-h-[calc(100vh-8rem)] flex-1 select-text overflow-y-auto p-6">
+            <div className="flex-1 select-text p-6">
               <div className="mb-5 flex items-center justify-between gap-4">
                 <h2 className="text-base font-normal uppercase">
                   {infoTabs[activeInfoTab].title}

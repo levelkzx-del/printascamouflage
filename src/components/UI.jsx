@@ -50,6 +50,110 @@ const pageLabels = [
   "Fashion",
 ];
 
+const processSections = [
+  {
+    title: "Software",
+    body: [
+      "Visual Studio Code // Photoshop",
+    ],
+    bullets: [
+      "HTML, CSS, Javascript, React, Vite (website)",
+      "Three.js (book model, animation)",
+      "Photoshop (slides)",
+    ],
+  },
+  {
+    title: "Making the Slide",
+    body: [
+      "Assemble in Photoshop.",
+    ],
+    images: [
+      {
+        src: "/images/process1.png",
+        alt: "A camouflage book page being assembled in Photoshop",
+      },
+    ],
+  },
+  {
+    title: "Page Integration",
+    body: [
+      "Place images into an array.",
+    ],
+
+  
+    code: `const pictures = [
+  "/images/page1.png",
+  "/images/page2.png",
+  "/images/page3.png",
+  "/images/page4.png",
+  "/images/page5.png",
+  "/images/page6.png",
+  "/images/page7.png",
+  "/images/page8.png",
+  "/images/page9.png",
+  "/images/page10.png",
+  "/images/page11.png",
+  "/images/page12.png",
+  "/images/page13.png",
+  "/images/page14.png",
+];`,
+  },
+  {
+    title: "Building the 3D Book",
+    body: [
+      "Once the page images were finished, I imported them into a React project and used Three.js with React Three Fiber to make the book interactive. The page images are used as textures, so the viewer can flip through the project like a real book instead of clicking through a normal slideshow.",
+    ],
+    bullets: [
+      "React and Vite run the project.",
+      "React Three Fiber creates the 3D scene.",
+      "Each page image is mapped onto the front or back of a page.",
+      "The book animation makes the pages turn smoothly.",
+    ],
+  },
+  {
+    title: "How the Code Works",
+    body: [
+      "The project is split into a few main files. App.jsx creates the overall app and places the 3D scene inside a Canvas. Experience.jsx controls the scene setup, including the camera controls, lighting, environment brightness, and the book itself.",
+      "Book.jsx is where the 3D book is built. Each page is a thin 3D rectangle with a front and back image texture. The page geometry is divided into many small segments, and those segments are attached to bones so the page can bend during the flip animation.",
+      "UI.jsx controls the on-screen interface. It stores the page list, the current page number, the Info window, the Process tab, the Bibliography tab, the page buttons, the sound controls, and the brightness/glare settings.",
+    ],
+    bullets: [
+      "App.jsx starts the main React app and renders the 3D Canvas.",
+      "Experience.jsx adds the camera, lights, background environment, and keyboard movement.",
+      "Book.jsx creates the book pages, loads the page images, and animates the page flips.",
+      "UI.jsx creates the buttons, Info window, page navigation, audio settings, and written process section.",
+    ],
+  },
+  {
+    title: "Languages and Tools Used",
+    body: [
+      "The project uses several web development languages and libraries. Each one has a different role in making the interactive book work.",
+    ],
+    bullets: [
+      "JavaScript was used for the main project logic, including page state, controls, animation timing, and user interaction.",
+      "JSX was used inside the React files to write the interface and 3D scene structure in a component-based format.",
+      "React was used to organize the project into reusable components like UI, Experience, and Book.",
+      "Three.js was used for the 3D graphics, including geometry, materials, textures, lighting, shadows, and the 3D book scene.",
+      "React Three Fiber was used to connect React with Three.js, making it easier to build the 3D scene using React components.",
+      "HTML was used through the main Vite app entry point to load the project into the browser.",
+      "CSS and Tailwind CSS were used for styling the interface, buttons, Info panel, layout, colors, and spacing.",
+      "JSON was used in package.json to store project information, scripts, and dependencies.",
+    ],
+  },
+  {
+    title: "Interface and Controls",
+    body: [
+      "I added extra controls so the project would be easier to present. The viewer can jump to pages, reset the camera, adjust brightness, turn glare on or off, and open the Info window for controls, process notes, and the bibliography.",
+    ],
+  },
+  {
+    title: "Revision and Polish",
+    body: [
+      "The final step was checking the pages for readability, spacing, typos, and image placement. I also revised captions and adjusted text so the finished book looked cleaner and was easier to understand during the presentation.",
+    ],
+  },
+];
+
 const infoTabs = {
   controls: {
     title: "Controls",
@@ -61,9 +165,7 @@ const infoTabs = {
   },
   process: {
     title: "Process",
-    body: [
-      "(soon to be updated for the presentation, sorry it's late)",
-    ],
+    sections: processSections,
   },
   bibliography: {
     title: "Bibliography",
@@ -138,6 +240,83 @@ export const UI = () => {
       }
       return nextControlsOpen;
     });
+  };
+
+  const renderInfoContent = () => {
+    const activeTab = infoTabs[activeInfoTab];
+
+    if (activeTab.sections) {
+      return (
+        <div className="select-text space-y-8 text-base leading-7">
+          {activeTab.sections.map((section) => (
+            <section className="select-text" key={section.title}>
+              <h3 className="mb-3 select-text text-xl font-normal">
+                {section.title}
+              </h3>
+              <div className="select-text space-y-4">
+                {section.body.map((paragraph) => (
+                  <p className="select-text" key={paragraph}>
+                    {paragraph}
+                  </p>
+                ))}
+              </div>
+              {section.bullets && (
+                <ul className="mt-4 list-disc space-y-2 pl-5">
+                  {section.bullets.map((item) => (
+                    <li className="select-text" key={item}>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {section.images && (
+                <div
+                  className={`mt-5 grid gap-4 ${
+                    section.images.length > 1 ? "sm:grid-cols-2" : ""
+                  }`}
+                >
+                  {section.images.map((image) => (
+                    <figure
+                      className="overflow-hidden rounded-md border border-black/10 bg-white/35"
+                      key={image.src}
+                    >
+                      <img
+                        className="w-full object-contain"
+                        src={image.src}
+                        alt={image.alt}
+                        onError={(event) => {
+                          event.currentTarget.closest("figure").remove();
+                        }}
+                      />
+                      {image.caption && (
+                        <figcaption className="select-text px-3 py-2 text-sm leading-5">
+                          {image.caption}
+                        </figcaption>
+                      )}
+                    </figure>
+                  ))}
+                </div>
+              )}
+              {section.code && (
+                <pre className="mt-5 overflow-x-auto rounded-md border border-black/10 bg-[#1f2428] p-4 text-sm leading-6 text-[#f2ead8]">
+                  <code>{section.code}</code>
+                </pre>
+              )}
+            </section>
+          ))}
+        </div>
+      );
+    }
+
+    return (
+      <div className="select-text space-y-4 text-base leading-7">
+        {activeTab.body.map((paragraph) => (
+          <p className="select-text" key={paragraph}>
+            {paragraph}
+          </p>
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -298,13 +477,7 @@ export const UI = () => {
                   x
                 </button>
               </div>
-              <div className="select-text space-y-4 text-base leading-7">
-                {infoTabs[activeInfoTab].body.map((paragraph) => (
-                  <p className="select-text" key={paragraph}>
-                    {paragraph}
-                  </p>
-                ))}
-              </div>
+              {renderInfoContent()}
             </div>
           </section>
             )}

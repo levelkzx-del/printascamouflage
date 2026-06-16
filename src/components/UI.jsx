@@ -14,10 +14,8 @@ const pictures = [
   "/images/page10.png",
   "/images/page11.png",
   "/images/page12.png",
-  "DSC01489",
-  "DSC02031",
-  "DSC02064",
-  "DSC02069",
+  "/images/page13.png",
+  "/images/page14.png",
 ];
 
 export const pageAtom = atom(0);
@@ -41,6 +39,17 @@ pages.push({
   back: "book-back",
 });
 
+const pageLabels = [
+  "Cover",
+  "Intro",
+  "Origin",
+  "Material",
+  "Tech",
+  "Cases",
+  "Modern",
+  "Fashion",
+];
+
 const infoTabs = {
   controls: {
     title: "Controls",
@@ -60,7 +69,18 @@ const infoTabs = {
     title: "Bibliography",
     body: [
       "Works cited",
-      "(WIP)",
+      "Behrens, Roy R. Art & Camouflage: Concealment and Deception in Nature, Art, and War. North American Review, 1981.",
+      "Scaturro, Sarah. From Combat to Couture: Camouflage in Fashion. 2011. Fashion Institute of Technology, State University of New York, M.A. thesis.",
+      "Beaver, Michael D., and J. F. Borsarello. Camouflage Uniforms of the Waffen-SS. Schiffer Publishing, 1995. Scribd, https://www.scribd.com/document/860675541/Schiffer-Camouflage-Uniforms-of-the-Waffen-SS.",
+      "Dimeo, David E. \"Unreconciled Visions of War: Japan and America in World War II: A Literature Review.\" Midwest Quarterly, vol. 66, no. 3, Apr. 2025, pp. 79-90. EBSCOhost, research.ebsco.com/plink/43c9a19e-455c-3632-8b11-5c5dc819348b.",
+      "Miller, Alisa. \"Second World War British Military Camouflage: Designing Deception, Forsyth Isla.\" Journal of the Society for Army Historical Research, vol. 97, no. 389, July 2019, pp. 195-96. EBSCOhost, research.ebsco.com/plink/764ba421-6708-32e3-bcb9-f6c8db0486c2.",
+      "Saint-Gaudens, Homer. \"Camouflage-World War II.\" The Military Engineer, vol. 38, no. 249, July 1946, pp. 287-90. EBSCOhost, research.ebsco.com/plink/ef92e30a-8cc2-318d-8bf9-7544f611d2c0.",
+      "Talas, Laszlo, Roland J. Baddeley, and Innes C. Cuthill. \"Cultural Evolution of Military Camouflage.\" Philosophical Transactions of the Royal Society B: Biological Sciences, vol. 372, no. 1724, 2017, article 20160351. DOI: 10.1098/rstb.2016.0351.",
+      "Feng, Ranran, and Balakrishnan Prabhakaran. \"Facilitating Fashion Camouflage Art.\" Proceedings of the 21st ACM International Conference on Multimedia, Oct. 2013, pp. 793-802. EBSCOhost, https://doi.org/10.1145/2502081.2502121.",
+      "Prasetyo, Yogi Tri. \"Utilization of Color Similarity Index for Evaluating Existing Military Camouflage Designs.\" Proceedings of the International Conference on Industrial Engineering & Operations Management, 10 Mar. 2020, pp. 1830-37.",
+      "\"A Bathing Ape 1ST CAMO: History of Color Camo.\" BAPE, 3 Feb. 2024, en.jp.bape.com/blogs/news/history-of-colorcamo.",
+      "Reuscher, Christopher. \"Early Printed Camouflage Uniforms of the Pacific War (1942-43).\" WWII Impressions: U.S. WWII Uniforms, www.usww2uniforms.com/PE2EarlyPacificCamo.html.",
+      "Tomlin, Chase. \"The Ghost Army: Canvas and Camouflage.\" The National WWII Museum, 9 May 2024, www.nationalww2museum.org/war/articles/ghost-army-canvas-and-camouflage.",
     ],
   },
 };
@@ -217,7 +237,7 @@ export const UI = () => {
                     }`}
                     onClick={() => setPage(index)}
                   >
-                    {index === 0 ? "Cover" : `Page ${index}`}
+                    {pageLabels[index] ?? `Page ${index}`}
                   </button>
                 ))}
                 <button
@@ -249,7 +269,7 @@ export const UI = () => {
             </div>
 
             {infoOpen && (
-          <section className="pointer-events-auto fixed left-6 top-24 z-20 flex w-[min(42rem,calc(100vw-3rem))] select-text rounded-lg border border-black/10 bg-[#f2ead8]/95 text-[#2f3b36] shadow-2xl backdrop-blur">
+          <section className="pointer-events-auto fixed left-6 top-24 z-20 flex max-h-[calc(100vh-8rem)] w-[min(42rem,calc(100vw-3rem))] select-text overflow-hidden rounded-lg border border-black/10 bg-[#f2ead8]/95 text-[#2f3b36] shadow-2xl backdrop-blur">
             <div className="flex w-52 shrink-0 flex-col gap-2 border-r border-black/10 p-4">
               {Object.entries(infoTabs).map(([tabId, tab]) => (
                 <button
@@ -265,7 +285,7 @@ export const UI = () => {
                 </button>
               ))}
             </div>
-            <div className="flex-1 select-text p-6">
+            <div className="flex-1 select-text overflow-y-auto p-6">
               <div className="mb-5 flex items-center justify-between gap-4">
                 <h2 className="text-base font-normal uppercase">
                   {infoTabs[activeInfoTab].title}

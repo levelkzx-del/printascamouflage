@@ -58,14 +58,14 @@ const processSections = [
     ],
     bullets: [
       "HTML, CSS, Javascript, React, Vite (website)",
-      "Three.js (book model, animation)",
+      "Three.js (book model & animation)",
       "Photoshop (slides)",
     ],
   },
   {
     title: "Making the Slide",
     body: [
-      "Assemble in Photoshop.",
+      "Assembled in Photoshop.",
     ],
     images: [
       {
@@ -77,7 +77,7 @@ const processSections = [
   {
     title: "Page Integration",
     body: [
-      "Place images into an array.",
+      "Images were put into an array, then passed to the page material's shader to reveal.",
     ],
 
   
@@ -99,57 +99,71 @@ const processSections = [
 ];`,
   },
   {
-    title: "Building the 3D Book",
+    title: "3D Book",
     body: [
-      "Once the page images were finished, I imported them into a React project and used Three.js with React Three Fiber to make the book interactive. The page images are used as textures, so the viewer can flip through the project like a real book instead of clicking through a normal slideshow.",
+      "Exports from the Three.js library.",
+    ],
+    images: [
+      {
+        src: "/images/process2.png",
+        alt: "Three.js export preview for the 3D book",
+      },
+    ],
+  },
+  {
+    title: "Flipping Pages",
+    body: [
+      "Bones were created in segments per page.",
+    ],
+    images: [
+      {
+        src: "/images/process3.png",
+        alt: "Segmented page bones used for the page flipping animation",
+      },
     ],
     bullets: [
-      "React and Vite run the project.",
-      "React Three Fiber creates the 3D scene.",
-      "Each page image is mapped onto the front or back of a page.",
-      "The book animation makes the pages turn smoothly.",
+      "The 'i' acts as the loop counter and the 'if statement' checks whether the bone is the first bone or not.",
+      "If it is, then the bone will place at x = 0.",
     ],
   },
   {
-    title: "How the Code Works",
+    title: "Buttons",
     body: [
-      "The project is split into a few main files. App.jsx creates the overall app and places the 3D scene inside a Canvas. Experience.jsx controls the scene setup, including the camera controls, lighting, environment brightness, and the book itself.",
-      "Book.jsx is where the 3D book is built. Each page is a thin 3D rectangle with a front and back image texture. The page geometry is divided into many small segments, and those segments are attached to bones so the page can bend during the flip animation.",
-      "UI.jsx controls the on-screen interface. It stores the page list, the current page number, the Info window, the Process tab, the Bibliography tab, the page buttons, the sound controls, and the brightness/glare settings.",
+      "The buttons and functions were mostly built with React. (Javascript UI Library)",
+      "Created a bunch of constants (value) for each feature.",
+    ],
+    images: [
+      {
+        src: "/images/process4.png",
+        alt: "React button and function code for the project features",
+      },
+      {
+        src: "/images/process5.png",
+        alt: "Tailwind CSS styling code for the project features",
+      },
     ],
     bullets: [
-      "App.jsx starts the main React app and renders the 3D Canvas.",
-      "Experience.jsx adds the camera, lights, background environment, and keyboard movement.",
-      "Book.jsx creates the book pages, loads the page images, and animates the page flips.",
-      "UI.jsx creates the buttons, Info window, page navigation, audio settings, and written process section.",
+      "TailwindCSS allowed me to write in all in one file.",
     ],
   },
   {
-    title: "Languages and Tools Used",
+    title: "Features",
     body: [
-      "The project uses several web development languages and libraries. Each one has a different role in making the interactive book work.",
+      "Functions are 'onClick' toggles.", 
+      "For example, this mute volume is set to update to either or the mute state or unmute state when clicked.",
     ],
-    bullets: [
-      "JavaScript was used for the main project logic, including page state, controls, animation timing, and user interaction.",
-      "JSX was used inside the React files to write the interface and 3D scene structure in a component-based format.",
-      "React was used to organize the project into reusable components like UI, Experience, and Book.",
-      "Three.js was used for the 3D graphics, including geometry, materials, textures, lighting, shadows, and the 3D book scene.",
-      "React Three Fiber was used to connect React with Three.js, making it easier to build the 3D scene using React components.",
-      "HTML was used through the main Vite app entry point to load the project into the browser.",
-      "CSS and Tailwind CSS were used for styling the interface, buttons, Info panel, layout, colors, and spacing.",
-      "JSON was used in package.json to store project information, scripts, and dependencies.",
+    images: [
+      {
+        src: "/images/process6.png",
+        alt: "Mute volume onClick toggle code",
+      },
     ],
   },
   {
-    title: "Interface and Controls",
+    title: "Hosting",
     body: [
-      "I added extra controls so the project would be easier to present. The viewer can jump to pages, reset the camera, adjust brightness, turn glare on or off, and open the Info window for controls, process notes, and the bibliography.",
-    ],
-  },
-  {
-    title: "Revision and Polish",
-    body: [
-      "The final step was checking the pages for readability, spacing, typos, and image placement. I also revised captions and adjusted text so the finished book looked cleaner and was easier to understand during the presentation.",
+      "Website is hosted using Vercel and redeployed with Github.",
+      "Thanks for reading! :)",
     ],
   },
 ];
@@ -198,6 +212,7 @@ export const UI = () => {
   const [brightness, setBrightness] = useAtom(brightnessAtom);
   const [pagesExpanded, setPagesExpanded] = useState(false);
   const [controlsOpen, setControlsOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
   const hasFlippedPage = useRef(false);
   const audioSettings = useRef({
     volume: 0.35,
@@ -280,14 +295,21 @@ export const UI = () => {
                       className="overflow-hidden rounded-md border border-black/10 bg-white/35"
                       key={image.src}
                     >
-                      <img
-                        className="w-full object-contain"
-                        src={image.src}
-                        alt={image.alt}
-                        onError={(event) => {
-                          event.currentTarget.closest("figure").remove();
-                        }}
-                      />
+                      <button
+                        className="block h-40 w-full cursor-zoom-in overflow-hidden"
+                        type="button"
+                        onClick={() => setSelectedImage(image)}
+                        aria-label={`Open larger view: ${image.alt}`}
+                      >
+                        <img
+                          className="h-full w-full object-cover object-top"
+                          src={image.src}
+                          alt={image.alt}
+                          onError={(event) => {
+                            event.currentTarget.closest("figure").remove();
+                          }}
+                        />
+                      </button>
                       {image.caption && (
                         <figcaption className="select-text px-3 py-2 text-sm leading-5">
                           {image.caption}
@@ -522,6 +544,32 @@ export const UI = () => {
           </div>
             </div>
           </>
+        )}
+
+        {selectedImage && (
+          <div
+            className="pointer-events-auto fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-6"
+            onClick={() => setSelectedImage(null)}
+          >
+            <div
+              className="relative max-h-full max-w-6xl"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <button
+                className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/70 text-xl leading-none text-white transition hover:bg-black"
+                type="button"
+                onClick={() => setSelectedImage(null)}
+                aria-label="Close larger image"
+              >
+                x
+              </button>
+              <img
+                className="max-h-[calc(100vh-3rem)] max-w-[calc(100vw-3rem)] rounded-md bg-[#f2ead8] object-contain"
+                src={selectedImage.src}
+                alt={selectedImage.alt}
+              />
+            </div>
+          </div>
         )}
 
         <div className="pointer-events-auto fixed bottom-6 left-1/2 z-30 flex -translate-x-1/2 flex-col items-center gap-2">
